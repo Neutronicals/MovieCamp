@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MovieModal from "../components/MovieModal";
+import { usePlayer } from "../context/PlayerContext";
 
 const TMDB_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
 const TMDB_BASE = "https://api.themoviedb.org/3";
@@ -85,6 +86,7 @@ const SeriesDetailsPage = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { playVideo } = usePlayer();
 
   // Use passed state immediately if present
   const [series, setSeries] = useState(location.state?.movie || null);
@@ -215,7 +217,7 @@ const SeriesDetailsPage = () => {
             <button onClick={() => setShowTrailer(true)} className="bg-cinema-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
               Watch Trailer
             </button>
-            <button onClick={() => alert("Streaming feature coming soon!")} className="bg-white text-black px-6 py-2 rounded-lg hover:bg-gray-300 transition">
+            <button onClick={() => playVideo({ id: series.id, type: 'tv', season: selectedSeason, episode: 1 })} className="bg-white text-black px-6 py-2 rounded-lg hover:bg-gray-300 transition">
               Watch Now
             </button>
           </div>
@@ -251,7 +253,7 @@ const SeriesDetailsPage = () => {
           <h2 className="text-xl font-bold mb-4">Season {selectedSeason} Episodes</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
             {episodes.map((ep) => (
-              <div key={ep.id} className="bg-gray-800 hover:bg-gray-700 transition p-3 rounded-lg text-center cursor-pointer">
+              <div key={ep.id} onClick={() => playVideo({ id: series.id, type: 'tv', season: selectedSeason, episode: ep.episode_number })} className="bg-gray-800 hover:bg-gray-700 transition p-3 rounded-lg text-center cursor-pointer">
                 <p className="font-semibold">{ep.name || `Episode ${ep.episode_number}`}</p>
                 <p className="text-gray-400 text-sm">Ep {ep.episode_number}</p>
               </div>

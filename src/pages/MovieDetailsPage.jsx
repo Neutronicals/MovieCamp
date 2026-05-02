@@ -94,25 +94,27 @@ function MovieDetailsPage() {
   const handleWatchNow = async () => {
     if (!movie) return;
 
+    // We prioritize Vidking integration using TMDB ID
+    playVideo({
+      id: movie.id,
+      type: mediaType,
+      season: 1, // Default for now, can be expanded for series
+      episode: 1
+    });
+
+    // Optional: Log analytics or check Supabase for custom links
     try {
       const { data, error } = await supabase
         .from('movie_links')
         .select('video_url')
         .eq('tmdb_id', String(movie.id))
         .single();
-
-      if (error) {
-        console.error('Error fetching video URL:', error);
-      }
-
+      
       if (data?.video_url) {
-        playVideo(data.video_url);
-      } else {
-        console.log('No video URL found for this movie.');
-        playVideo('');
+        console.log('Custom video URL found in Supabase:', data.video_url);
       }
     } catch (err) {
-      console.error('Unexpected error:', err);
+      console.warn('Supabase link check failed:', err);
     }
   };
 
